@@ -54,6 +54,7 @@
     },
     "devDependencies": {
         "@electron/notarize": "^2.5.0",
+        "@electron/rebuild": "^3.7.2",
         "@mapbox/node-pre-gyp": "^2.0.0",
         "@playwright/test": "^1.56.1",
         "@rollup/plugin-commonjs": "^28.0.6",
@@ -82,7 +83,9 @@
         "eslint-plugin-prefer-arrow": "^1.2.3",
         "eslint-plugin-svelte3": "^4.0.0",
         "npm-run-all": "^4.1.5",
+        "patch-package": "^8.0.1",
         "playwright": "^1.56.1",
+        "postinstall-postinstall": "^2.1.0",
         "prettier": "^3.6.2",
         "rollup": "^4.46.2",
         "rollup-plugin-copy": "^3.5.0",

@@ -810,6 +810,9 @@ export const historyActions = ({ obj, undo = null }: any) => {
                 Object.entries(slides).forEach(([id, slide]) => {
                     if ((slideId && slideId !== id) || !slide) return
 
+                    const layoutSlides = show.layouts?.[data.remember.layout]?.slides || []
+                    const firstSlideId = layoutSlides[0]?.id
+
                     // show template
                     let slideTemplate = template
                     let templateMode: "global" | "group" | "slide" = "global"
@@ -828,6 +831,17 @@ export const historyActions = ({ obj, undo = null }: any) => {
                         if (globalGroup && get(groups)[globalGroup]?.template) {
                             slideTemplate = clone(get(templates)[get(groups)[globalGroup]?.template || ""]) || template
                             templateMode = "group"
+                        }
+                    }
+
+                    const isFirstSlide = templateMode === "global" && id === firstSlideId
+
+                    // swap in first-slide template before merging content so items/styles match immediately
+                    if (isFirstSlide && template?.settings?.firstSlideTemplate) {
+                        const firstSlideTemplate = clone(get(templates)[template.settings.firstSlideTemplate] || {})
+                        if (firstSlideTemplate && Object.keys(firstSlideTemplate).length) {
+                            slideTemplate = firstSlideTemplate
+                            templateMode = "slide"
                         }
                     }
 
@@ -873,8 +887,10 @@ export const historyActions = ({ obj, undo = null }: any) => {
                     // if (slideTemplate.settings?.resolution) show.slides[id].settings.resolution = slideTemplate.settings?.resolution
                     if (slideTemplate.settings?.backgroundColor) show.slides[id].settings.color = slideTemplate.settings?.backgroundColor
 
-                    const isFirst = templateMode === "global" && id === show.layouts[data.remember.layout]?.slides?.[0]?.id
-                    show.slides[id] = updateSlideFromTemplate(show.slides[id], slideTemplate, isFirst, changeOverflowItems)
+                    show.slides[id] = updateSlideFromTemplate(show.slides[id], slideTemplate, isFirstSlide, changeOverflowItems)
+                    if (isFirstSlide && template?.settings?.firstSlideTemplate) {
+                        show.slides[id].settings.template = template.settings.firstSlideTemplate
+                    }
 
                     const slideRefs = ref.filter((a) => a.id === id)
                     const oldTemplate = get(templates)[previousTemplateId || ""] || {}
